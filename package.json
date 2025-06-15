@@ -1,0 +1,37 @@
+{
+  "name": "accordjs",
+  "version": "1.0.0",
+  "description": "One framwork for make a easy better discord bot",
+  "main": "dist/index.js",
+  "bin": {
+    "accordjs": "dist/CLI/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "pub": "npm run build && npm publish --access public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Oignontom8283/accordjs.git"
+  },
+  "keywords": [],
+  "author": "Oignontom8283",
+  "license": "MIT",
+  "type": "commonjs",
+  "exports": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "bugs": {
+    "url": "https://github.com/Oignontom8283/accordjs/issues"
+  },
+  "homepage": "https://github.com/Oignontom8283/accordjs#readme",
+  "dependencies": {
+    "@types/node": "^24.0.1",
+    "coloriz": "^1.2.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
+}
