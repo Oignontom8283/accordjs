@@ -3,6 +3,7 @@ import fs from "fs";
 import readline from "readline";
 const me = JSON.parse(fs.readFileSync(path.join(__dirname, '../../package.json'), 'utf-8'));
 import 'coloriz';
+import { ACCORDJS_DEVLOPMENT_MODE } from "../constant";
 
 function asl(question:string): Promise<string>{
     return new Promise((resolve) => {
@@ -23,54 +24,74 @@ export default async function init(args:string[]) {
     console.log(`\n🚀 AccordJS CLI ${('v' + me.version).white} - ${me.description.white}\n`.yellow);
 
     console.log("📦 Initialisation du projet...");
-    // Copier les templates, initialiser git, installer les deps, etc.Z
 
-    let workspacePath = process.cwd();
-
-    const arg2 = args[1];
-    if (arg2) {
-        if (path.isAbsolute(arg2)) {
-            workspacePath = arg2;
-        } else {
-            workspacePath = path.join(workspacePath, arg2);
-        }
-    } else {
-        const regex =  /^[a-zA-Z0-9-_]+$/; // Regex to allow alphanumeric characters, hyphens, and underscores
+    // if (arg2) {
+    //     if (path.isAbsolute(arg2)) {
+    //         workspacePath = arg2;
+    //     } else {
+    //         workspacePath = path.join(workspacePath, arg2);
+    //     }
+    // } else {
+    //     const regex =  /^[a-zA-Z0-9-_]+$/; // Regex to allow alphanumeric characters, hyphens, and underscores
         
-        while (true) {
-            const rl = await asl(`${'?'.magentaBright.bld} Workspace name ? ${'("." for current dir)'.gray.italic} : `.rgb(155, 153, 247));
-            var trimmedNameInput = rl.trim();
+    //     while (true) {
+    //         const rl = await asl(`${'?'.magentaBright.bld} Workspace name ? ${'("." for current dir)'.gray.italic} : `.rgb(155, 153, 247));
+    //         var trimmedNameInput = rl.trim();
             
-            if (trimmedNameInput === '.') {
-                console.log("ℹ️ Using current directory as workspace.".yellow);
-                break;
-            } else if (!regex.test(trimmedNameInput) || trimmedNameInput === '') {
-                console.log("❌ Invalid workspace name. Please use only alphanumeric characters, hyphens, and underscores.".red);
-                continue;
-            } else {
-                break;
-            }
+    //         if (trimmedNameInput === '.') {
+    //             console.log("ℹ️ Using current directory as workspace.".yellow);
+    //             break;
+    //         } else if (!regex.test(trimmedNameInput) || trimmedNameInput === '') {
+    //             console.log("❌ Invalid workspace name. Please use only alphanumeric characters, hyphens, and underscores.".red);
+    //             continue;
+    //         } else {
+    //             break;
+    //         }
+    //     }
+
+    //     workspacePath = path.isAbsolute(trimmedNameInput) ? trimmedNameInput : path.join(workspacePath, trimmedNameInput);
+    // }
+
+    let input = args[1]?.trim();
+
+    const regex = /^[A-Za-z_\-/\\.]+$/; //  Regex to allow alphanumeric characters, hyphens, underscores, slashes, and dots
+    while (true) {
+        if (input === ".") {
+            console.log("ℹ️ Using current directory as workspace.".bgYellow.black);
+            break;
+        }
+        else if (!input || input === "") {
+            console.log("❌ You must provide a workspace name !".red);
+        }
+        else if (!regex.test(input)) {
+            console.log("❌ Invalid workspace name. Please use only alphanumeric characters, hyphens, and underscores.".red);
+        } else {
+            break;
         }
 
-        workspacePath = path.isAbsolute(trimmedNameInput) ? trimmedNameInput : path.join(workspacePath, trimmedNameInput);
+        input = (await asl(`${'?'.magentaBright.bld} Workspace name ? ${'("." for current dir)'.gray.italic} : `.rgb(155, 153, 247))).trim();
     }
 
     // set workspace path
+    const workspacePath = path.isAbsolute(input) ? input : path.join(process.cwd(), input);
 
     // Check if the workspace dir exists, if not create it
     if (!fs.existsSync(workspacePath)) {
         fs.mkdirSync(workspacePath, { recursive: true });
     }
 
+    // Change the current working directory to the workspace path
     process.chdir(workspacePath);
+    const dirName = path.basename(workspacePath);
+
     console.log(`📂 Workspace path is ${process.cwd()}`);
 
-    // Initilisation du projet npm
+    // Initializing NPM project
+    console.log("📦 Initializing NPM project...".yellow);
     
-    console.log("📦 Initialisation du projet npm...")
-    
+    // Define the package.json content
     const packageJson = {
-        name: path.basename(workspacePath),
+        name: dirName,
         version: "1.0.0",
         description: "accordJS discord bot project",
         scripts: {
@@ -82,7 +103,8 @@ export default async function init(args:string[]) {
         license: "MIT",
         author: "",
         dependencies: {
-            "accordjs": me.version
+            // Set the AccordJS link to the local package if in development mode, otherwise use the version from package.json
+            "accordjs": ACCORDJS_DEVLOPMENT_MODE ? "file:" + path.join(__dirname, '../../') : me.version,
         },
     }
 
