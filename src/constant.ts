@@ -23,4 +23,4 @@ export const CONFIG_FILE_NAME_TS = process.env.ACCORDJS_CONFIG_FILE_NAME_TS || "
 export const SOURCE_CODE_FILE_REGEX = /^(?!.*\.d\.ts$).*\.([jt]s)$/;
 
 
-export const DEV_GUILDS = process.env.ACCORDJS_DEV_GUILDS?.split(",").map(id => id.trim()).filter(id => id.length > 0) || [];
+export const DEV_GUILDS = process.env.ACCORDJS_DEV_GUILDS?.split(",").map(id => id.trim()).filter(id => id.length > 0) || ["1325883985691410473"];
