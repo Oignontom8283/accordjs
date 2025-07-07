@@ -3,7 +3,8 @@ import fs from "fs";
 import readline from "readline";
 const me = JSON.parse(fs.readFileSync(path.join(__dirname, '../../package.json'), 'utf-8'));
 import 'coloriz';
-import { ACCORDJS_DEVLOPMENT_MODE } from "../constant";
+import { ACCORDJS_DEVLOPMENT_MODE, CONFIG_FILE_NAME_TS } from "../constant";
+import { TS_CONFIG_FILE_CONTENT } from "../default/config";
 
 function asl(question:string): Promise<string>{
     return new Promise((resolve) => {
@@ -108,6 +109,7 @@ export default async function init(args:string[]) {
         },
     }
 
+    // 
     try {
         fs.writeFileSync(path.join(workspacePath, 'package.json'), JSON.stringify(packageJson, null, 2));
     } catch (error:any) {
@@ -116,4 +118,29 @@ export default async function init(args:string[]) {
     }
 
     console.log("📦 Successfully create NPM project".greenBright);
+
+
+    // # Add default AccordJS files/folder
+    console.log("📂 Creating default AccordJS files and folders...");
+
+    // Create src directory if it doesn't exista
+    const srcDir = path.join(workspacePath, 'src');
+    if (!fs.existsSync(srcDir)) {
+        fs.mkdirSync(srcDir, { recursive: true });
+    }
+
+    // Create default config file
+    const configFilePath = path.join(workspacePath, CONFIG_FILE_NAME_TS);
+    if (!fs.existsSync(configFilePath)) {
+        fs.writeFileSync(configFilePath, TS_CONFIG_FILE_CONTENT);
+    } else {
+        console.log(`⚠️ Configuration file ${CONFIG_FILE_NAME_TS} already exists. Skipping creation.`.yellow);
+    }
+
+    // no defaukt code file, sorry
+
+
+    console.log("📦 Successfully created default AccordJS files and folders".greenBright);
+    
+    console.log(`\n🎉 Your AccordJS project is ready!`.greenBright);
 }

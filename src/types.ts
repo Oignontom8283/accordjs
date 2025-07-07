@@ -77,3 +77,12 @@ export function createCommand<T>(arg: CommandWithoutHandler<T>): CreateReturn<"c
 export function createCommand(arg: any) {
   return { arg: arg, type: "command" };
 }
+
+
+
+// #### AccordJs Configuration file
+
+export type AccordJSConfigFile = {
+  TOKEN: string;
+  CLIENT_ID: string;
+}
