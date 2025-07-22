@@ -1,7 +1,7 @@
 {
   "name": "accordjs",
   "version": "1.0.0",
-  "description": "One framwork for make a easy better discord bot",
+  "description": "One framework to build better Discord bots easily",
   "main": "dist/index.js",
   "bin": {
     "accordjs": "dist/CLI/cli.js"
@@ -29,13 +29,18 @@
   "homepage": "https://github.com/Oignontom8283/accordjs#readme",
   "dependencies": {
     "coloriz": "^1.2.0",
-    "discord.js": "^14.20.0",
     "dotenv": "^16.5.0",
     "webpack": "^5.99.9"
   },
   "devDependencies": {
     "@types/node": "^24.0.3",
     "@types/webpack-env": "^1.18.8",
-    "typescript": "^5.8.3"
+    "discord.js": "^14.20.0",
+    "typescript": "^5.8.3",
+    "webpack-cli": "^6.0.1"
+  },
+  "peerDependencies": {
+    "discord.js": "^14.20.0",
+    "ts-loader": "^9.5.2"
   }
 }
