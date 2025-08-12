@@ -1,10 +1,13 @@
 import path from "path";
 import fs from "fs";
 import readline from "readline";
-const me = JSON.parse(fs.readFileSync(path.join(__dirname, '../../package.json'), 'utf-8'));
+const me:{version:string, description:string, peerDependencies:{"discord.js":string, "ts-loader":string}} = JSON.parse(fs.readFileSync(path.join(__dirname, '../../package.json'), 'utf-8'));
 import 'coloriz';
 import { ACCORDJS_DEVLOPMENT_MODE, CONFIG_FILE_NAME_TS } from "../constant";
-import { TS_CONFIG_FILE_CONTENT } from "../default/config";
+import { stderr } from "process";
+import envDefault from "../default/env.default";
+import tsconfigDefault from "../default/tsconfig.default";
+import packageJsonDefault from "../default/packageJson.default";
 
 function asl(question:string): Promise<string>{
     return new Promise((resolve) => {
@@ -24,37 +27,11 @@ export default async function init(args:string[]) {
     
     console.log(`\n🚀 AccordJS CLI ${('v' + me.version).white} - ${me.description.white}\n`.yellow);
 
-    console.log("📦 Initialisation du projet...");
-
-    // if (arg2) {
-    //     if (path.isAbsolute(arg2)) {
-    //         workspacePath = arg2;
-    //     } else {
-    //         workspacePath = path.join(workspacePath, arg2);
-    //     }
-    // } else {
-    //     const regex =  /^[a-zA-Z0-9-_]+$/; // Regex to allow alphanumeric characters, hyphens, and underscores
-        
-    //     while (true) {
-    //         const rl = await asl(`${'?'.magentaBright.bld} Workspace name ? ${'("." for current dir)'.gray.italic} : `.rgb(155, 153, 247));
-    //         var trimmedNameInput = rl.trim();
-            
-    //         if (trimmedNameInput === '.') {
-    //             console.log("ℹ️ Using current directory as workspace.".yellow);
-    //             break;
-    //         } else if (!regex.test(trimmedNameInput) || trimmedNameInput === '') {
-    //             console.log("❌ Invalid workspace name. Please use only alphanumeric characters, hyphens, and underscores.".red);
-    //             continue;
-    //         } else {
-    //             break;
-    //         }
-    //     }
-
-    //     workspacePath = path.isAbsolute(trimmedNameInput) ? trimmedNameInput : path.join(workspacePath, trimmedNameInput);
-    // }
+    console.log("📦 Initializing project...");
 
     let input = args[1]?.trim();
 
+    // ^(?:(?:@(?:[a-z0-9-*~][a-z0-9-*._~]*)?/[a-z0-9-._~])|[a-z0-9-~])[a-z0-9-._~]*$
     const regex = /^[A-Za-z_\-/\\.]+$/; //  Regex to allow alphanumeric characters, hyphens, underscores, slashes, and dots
     while (true) {
         if (input === ".") {
@@ -81,43 +58,45 @@ export default async function init(args:string[]) {
         fs.mkdirSync(workspacePath, { recursive: true });
     }
 
+    // Save command execution location
+    const cliBasePath = process.cwd();
+
     // Change the current working directory to the workspace path
     process.chdir(workspacePath);
     const dirName = path.basename(workspacePath);
 
+
     console.log(`📂 Workspace path is ${process.cwd()}`);
 
     // Initializing NPM project
-    console.log("📦 Initializing NPM project...".yellow);
+    console.log("📦 Initializing NPM project...");
     
     // Define the package.json content
-    const packageJson = {
-        name: dirName,
-        version: "1.0.0",
-        description: "accordJS discord bot project",
-        scripts: {
-            start: "accordjs start",
-            build: "accordjs build",
-            dev: "accordjs dev",
-            test: "accordjs dev",
-        },
-        license: "MIT",
-        author: "",
-        dependencies: {
-            // Set the AccordJS link to the local package if in development mode, otherwise use the version from package.json
+
+    const packageJsonPath = path.join(workspacePath, 'package.json')
+    if (!fs.existsSync(packageJsonPath)) {
+        fs.writeFileSync(packageJsonPath, packageJsonDefault(dirName, {
             "accordjs": ACCORDJS_DEVLOPMENT_MODE ? "file:" + path.join(__dirname, '../../') : me.version,
-        },
+            'discord.js': me.peerDependencies['discord.js'],
+            "ts-loader": me.peerDependencies['ts-loader'],
+        }), 'utf-8');
+    } else {
+        console.log(`ℹ️ package.json file already exists, skipping creation.`.bgYellow.black);
     }
 
-    // 
-    try {
-        fs.writeFileSync(path.join(workspacePath, 'package.json'), JSON.stringify(packageJson, null, 2));
-    } catch (error:any) {
-        console.error("❌ Error writing package.json:", error.message.red);
-        process.exit(1);
+    console.log("📦 Successfully created NPM project");
+
+    
+    // Create tsconfig.json file
+
+    const tsconfigPath = path.join(workspacePath, "tsconfig.json");
+    if (!fs.existsSync(tsconfigPath)) {
+        fs.writeFileSync(tsconfigPath, tsconfigDefault(), 'utf-8');
+    } else {
+        console.log(`ℹ️ tsconfig.json file already exists, skipping creation.`.bgYellow.black);
     }
 
-    console.log("📦 Successfully create NPM project".greenBright);
+    console.log(`📦 Successfully created TypeScript project`);
 
 
     // # Add default AccordJS files/folder
@@ -129,18 +108,35 @@ export default async function init(args:string[]) {
         fs.mkdirSync(srcDir, { recursive: true });
     }
 
-    // Create default config file
-    const configFilePath = path.join(workspacePath, CONFIG_FILE_NAME_TS);
-    if (!fs.existsSync(configFilePath)) {
-        fs.writeFileSync(configFilePath, TS_CONFIG_FILE_CONTENT);
+    // Create default env file
+    const defaultEnvFile = path.join(workspacePath, '.env');
+    if (!fs.existsSync(defaultEnvFile)) {
+        fs.writeFileSync(defaultEnvFile, envDefault, 'utf-8');
     } else {
-        console.log(`⚠️ Configuration file ${CONFIG_FILE_NAME_TS} already exists. Skipping creation.`.yellow);
+        console.log(`ℹ️ .env file already exists, skipping creation.`.bgYellow.black);
     }
 
-    // no defaukt code file, sorry
+    // no defaukt code file, sorry ):
 
 
-    console.log("📦 Successfully created default AccordJS files and folders".greenBright);
+    console.log("📦 Successfully created default AccordJS files and folders");
     
-    console.log(`\n🎉 Your AccordJS project is ready!`.greenBright);
+
+    // Success message and instuctions
+    console.log(`\n🎉 Your AccordJS project is ready !`.bld.greenBright);
+
+    const relativePath = path.relative(cliBasePath, process.cwd());
+    const greenNumber = (number:number) => ` ${number} `.bgGreenBright.white.bld;
+
+    console.log(``)
+    console.log(`👉 Next steps :`.white);
+    console.log(`  ${greenNumber(1)}  cd "${relativePath}"`.gray);
+    console.log(`  ${greenNumber(2)}  npm install`.gray);
+    console.log(`  ${greenNumber(3)}  npm run dev`.gray);
+    console.log('')
+    console.log(`✨ Happy coding with AccordJS ! 🚀`.hex("#ff65c3").bld)
+    console.log(" “Copy and paste was invented by developers for developers.” - 0xC0000135".italic.hex('#5e5f66'))
+    console.log()
+    console.log('─'.repeat(stderr.columns || 80).white);
 }
+

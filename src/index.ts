@@ -7,15 +7,78 @@ import { AnyCreateReturn, CreateArg, CreateReturn } from "./types";
 import { getRecursiveFiles } from "./utils";
 
 export * from "./types";
+export { SOURCE_CODE_FILE_REGEX } from "./constant";
 
 
-type StartOptions<T extends boolean> = T extends true 
-    ? { DEVLOPEMENT_MODE: true, SOURCE_PATH: string, TOKEN: string, CLIENT_ID: string } 
-    : { DEVLOPEMENT_MODE: false, SOURCE_PATH?: string, TOKEN: string, CLIENT_ID: string};
+type StartOptions = {
+    DEVLOPEMENT_MODE: Boolean;
+    rawModuleEntries: RawModuleEntry[];
+    bot: {
+        token: string;
+        client_id: string;
+    }
+}
+
+type UnvalidatedModule = {
+    path: string;
+    module: AnyCreateReturn;
+    position: number;
+}
+
+type ModuleExports = Partial<AnyCreateReturn>
+
+type ModuleExportsArray = ModuleExports | ModuleExports[];
+
+type RawModuleEntry = { require: any, path: string };
 
 
 
-export function initializeAccordJS<T extends boolean>(args: StartOptions<T>) {
+export function initializeFromWebpack(context: __WebpackModuleApi.RequireContext) {
+
+    // In production mode, we use the webpack context to load modules
+    let rawModuleEntries: RawModuleEntry[] = [];
+
+    // Iterate over the context keys and require each module
+    context.keys().forEach((key) => {
+            const module = context(key);
+            rawModuleEntries.push({ require: module, path: key });
+        });
+
+    initializeMain({
+        DEVLOPEMENT_MODE: false,
+        rawModuleEntries: rawModuleEntries,
+        bot: {
+            token: process.env.TOKEN || "",
+            client_id: process.env.CLIENT_ID || ""
+        }
+    })
+}
+
+export function initializeFRomFileSystem(sourcePath:string) {
+    // In development mode, we use the file system to load modules
+    let rawModuleEntries: RawModuleEntry[] = [];
+
+    // Get all files in the source path recursively
+    const files = getRecursiveFiles(sourcePath, SOURCE_CODE_FILE_REGEX);
+
+    // Iterate over the files and require each module
+    files.forEach((file) => {
+        const module = require(path.resolve(file));
+        rawModuleEntries.push({ require: module, path: file });
+    });
+
+    initializeMain({
+        DEVLOPEMENT_MODE: true,
+        rawModuleEntries: rawModuleEntries,
+        bot: {
+            token: process.env.TOKEN || "",
+            client_id: process.env.CLIENT_ID || ""
+        }
+    });
+}
+
+
+export function initializeMain<T extends boolean>(args: StartOptions) {
     // Diplay a message if the development mode is enabled
     args.DEVLOPEMENT_MODE && console.log(`[DEV] Development mode is enabled. Loading modules from the file system.`.blueBright)
 
@@ -34,49 +97,13 @@ export function initializeAccordJS<T extends boolean>(args: StartOptions<T>) {
         ]
     });
 
+    let rawModuleEntries = args.rawModuleEntries;
+
+    const { token, client_id } = args.bot
+
     // ======================== Load Modules and Commands ========================
 
-
-    type UnvalidatedModule = {
-        path: string;
-        module:CreateReturn<"event"> | CreateReturn<"command">;
-        position: number;
-    }
-
-    type ModuleExports = Partial<AnyCreateReturn>
-
-
-    let rawModuleEntries:{  require: ModuleExports | ModuleExports[], path: string}[] = []
-    if (args.DEVLOPEMENT_MODE) {
-        const dir = args.SOURCE_PATH
-
-        const files = getRecursiveFiles(dir, SOURCE_CODE_FILE_REGEX);
-        for (const path of files) {
-
-            const module = require(path);
-            
-            const content = module && (module.default || module);
-
-            if (content) {
-                rawModuleEntries.push({ require: content, path: path });
-            } else {
-                console.warn(`[WARNING] The file ${path} does not export a valid AccordJS module.`);
-            }
-        }
-    } else {
-        // In production mode, we use the webpack context to load modules
-        const context = require.context("./", true, SOURCE_CODE_FILE_REGEX);
-        context.keys().forEach((key) => {
-            const module = context(key);
-            const content = module && (module.default || module);
-
-            if (content) {
-                rawModuleEntries.push({ require: content, path: key });
-            } else {
-                console.warn(`[WARNING] The file ${key} does not export a valid AccordJS module.`);
-            }
-        });
-    }
+    
 
     let validatedModules: UnvalidatedModule[] = [];
     for (const item of rawModuleEntries) {
@@ -84,8 +111,16 @@ export function initializeAccordJS<T extends boolean>(args: StartOptions<T>) {
         // Check if the item has a require property and if it is an array or a single object
         const isValidModuleExport = (exported: Partial<AnyCreateReturn>): boolean => "type" in exported && "arg" in exported;
 
+        // Check if the item has a require property and if it is an object or an array
+        const rawExported = item.require && (item.require.default || item.require);
+ 
+        // Check if the exported module is valid
+        if (!rawExported) {
+            console.warn(`[WARNING] The file ${item.path} does not valid export`);
+            continue;
+        }
 
-        const exported = Array.isArray(item.require) ? item.require : [item.require];
+        const exported = Array.isArray(rawExported) ? rawExported : [rawExported];
 
         exported.forEach((module, index) => {
             if (isValidModuleExport(module)) {
@@ -143,7 +178,7 @@ export function initializeAccordJS<T extends boolean>(args: StartOptions<T>) {
     // ========================= Deploy Commands ========================
 
     // Construct and prepare an instance of the REST module
-    const rest = new REST().setToken(args.TOKEN);
+    const rest = new REST().setToken(token);
 
     // and deploy your commands!
     (async () => {
@@ -166,13 +201,13 @@ export function initializeAccordJS<T extends boolean>(args: StartOptions<T>) {
                     
                     // Clear all commands of the guild
                     await rest.put(
-                        Routes.applicationGuildCommands(args.CLIENT_ID, devGuildId),
+                        Routes.applicationGuildCommands(client_id, devGuildId),
                         { body: {} }
                     )
 
                     // The put method is used to fully refresh all commands in the guild with the current set
                     data = await rest.put(
-                        Routes.applicationGuildCommands(args.CLIENT_ID, devGuildId),
+                        Routes.applicationGuildCommands(client_id, devGuildId),
                         { body: commandsToDeploy },
                     )
 
@@ -183,13 +218,13 @@ export function initializeAccordJS<T extends boolean>(args: StartOptions<T>) {
                 
                 // Clear all commands
                 await rest.put(
-                    Routes.applicationCommands(args.CLIENT_ID),
+                    Routes.applicationCommands(client_id),
                     { body: {} }
                 )
         
                 // The put method is used to fully refresh all commands in the guild with the current set
                 data = await rest.put(
-                    Routes.applicationCommands(args.CLIENT_ID),
+                    Routes.applicationCommands(client_id),
                     { body: commandsToDeploy },
                 );
             }
@@ -294,10 +329,11 @@ export function initializeAccordJS<T extends boolean>(args: StartOptions<T>) {
 
     // ======================== Login to Discord with your app's token ========================
 
-    if (!args.TOKEN) {
+    // Check if the token is not undefined
+    if (!token) {
         console.error("The Discord Token in env variable is not define !")
         process.exit(1)
     }
-    client.login(args.TOKEN)
+    client.login(token)
 
 }
