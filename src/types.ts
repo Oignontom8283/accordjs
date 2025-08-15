@@ -67,9 +67,23 @@ type CommandWithoutHandler<T> = {
   execute: (interaction: T) => void;
 }
 
+type AnyCommand = CommandWithHandler | CommandWithoutHandler<any>;
+
 export function createCommand(arg: CommandWithHandler): CreateReturn<"command">;
 export function createCommand<T>(arg: CommandWithoutHandler<T>): CreateReturn<"command">;
 export function createCommand(arg: any) {
   return { arg: arg, type: "command" };
 }
 
+
+
+
+
+
+
+type forDeploy<F extends "event" | "command"> = {
+  id: string;
+  index: number;
+  type: F;
+  module: F extends "event" ? AnyEvent : AnyCommand;
+}
