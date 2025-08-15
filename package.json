@@ -8,7 +8,8 @@
   },
   "scripts": {
     "build": "tsc",
-    "pub": "npm run build && npm publish --access public"
+    "pub": "npm run build && npm publish --access public",
+    "dev": "ts-node src/test.ts"
   },
   "repository": {
     "type": "git",
@@ -34,6 +35,7 @@
   "devDependencies": {
     "@types/node": "^24.0.3",
     "discord.js": "^14.20.0",
+    "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
   },
   "peerDependencies": {
