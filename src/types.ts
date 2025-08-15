@@ -31,6 +31,8 @@ export type CreateReturn<E extends "event" | "command"> = {
 
 export type AnyCreateReturn = CreateReturn<"event"> | CreateReturn<"command">;
 
+export type AnyEvent = EventWithHandler<keyofClientEvents, any> | EventWithoutHandler<keyofClientEvents>;
+
 export type CreateArg<E extends "event" | "command"> = E extends "event" ? EventWithHandler<keyofClientEvents, any> | EventWithoutHandler<keyofClientEvents> : CommandWithHandler | CommandWithoutHandler<any>;
 
 export function createEvent<Event extends keyofClientEvents, T>(
@@ -53,22 +55,15 @@ export function createHandler<Event extends keyofClientEvents, T>(
 
 
 
-/**
- * If number, it is the cooldown in seconds. Else it is a function for the custom cooldown logic.
- */
-type Cooldown<T> = number | ((lastUse:Date, now:Date, cooldowns:Record<string, Record<string, Date>>, interaction:T) => boolean)
-
 type CommandWithHandler<T = ChatInputCommandInteraction> = {
   data: SlashCommandBuilder;
   handler?: undefined;
-  cooldown?: Cooldown<T>;
   execute: (interaction: T) => void;
 }
 
 type CommandWithoutHandler<T> = {
   data: SlashCommandBuilder;
   handler: Handler<"SlashCommand", T>;
-  cooldown?: Cooldown<T>;
   execute: (interaction: T) => void;
 }
 
@@ -78,11 +73,3 @@ export function createCommand(arg: any) {
   return { arg: arg, type: "command" };
 }
 
-
-
-// #### AccordJs Configuration file
-
-export type AccordJSConfigFile = {
-  TOKEN: string;
-  CLIENT_ID: string;
-}
