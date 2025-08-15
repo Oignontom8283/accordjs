@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { Client } from "discord.js";
-import { AnyEvent } from "./types";
+import { AnyCreateReturn, AnyEvent } from "./types";
 
 export function deployEvent(client: Client, event: AnyEvent) {
 
@@ -54,4 +54,25 @@ export function getAllFilesRecursive(dir: string, fileFiltre: RegExp = /^.*$/, f
     }
 
     return results;
+}
+
+export function loadModuleFromFile(filePath: string) {
+    return require(filePath);
+}
+
+export function ensureFramworkModule(module: any, id:string): AnyCreateReturn {
+
+    if (!module || typeof module !== 'object') {
+        throw new Error(`Module at ${id} is not a valid AccordJS module.`);
+    }
+
+    if (!('type' in module) || !['event', 'command'].includes(module.type)) {
+        throw new Error(`Module at ${id} does not have a valid 'type' property.`);
+    }
+
+    if (!('arg' in module)) {
+        throw new Error(`Module at ${id} does not have an 'arg' property.`);
+    }
+
+    return module as AnyCreateReturn;
 }
