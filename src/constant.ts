@@ -9,18 +9,23 @@ dotenv.config({
 /**
  * Is AccordJS in development mode ?
  */
-export const ACCORDJS_DEVLOPMENT_MODE = process.env.ACCORDJS_DEV?.trim().toLowerCase() === 'true'
-
-
-export const CONFIG_FILE_NAME_JS = process.env.ACCORDJS_CONFIG_FILE_NAME_JS || "accordjs.config.js";
-
-export const CONFIG_FILE_NAME_TS = process.env.ACCORDJS_CONFIG_FILE_NAME_TS || "accordjs.config.ts";
+export const ACCORDJS_DEVELOPMENT_MODE = process.env.ACCORDJS_DEV?.trim().toLowerCase() === 'true';
 
 
 /**
- * EN: Regex to match source code files.
+ * Regular expression to match source code folder names.
+ * This regex excludes folders with parentheses in their names.
  */
-export const SOURCE_CODE_FILE_REGEX = /^(?!index\.(js|ts)$)(?!.*\.d\.ts$).*\.([jt]s)$/;
+export const SOURCE_CODE_FOLDER_NAME_REGEX = /^(?!.*[()]).*$/;
 
+/**
+ * Regular expression to match source code file names.
+ * This regex excludes files with parentheses in their names.
+ */
+export const SOURCE_CODE_FILE_NAME_REGEX = /^(?!.*[()]).*\.(ts|js)$/;
 
-export const DEV_GUILDS = process.env.ACCORDJS_DEV_GUILDS?.split(",").map(id => id.trim()).filter(id => id.length > 0) || ["1325883985691410473"];
+/**
+ * List of development guild IDs.
+ * This is used to restrict certain features to specific guilds during development.
+ */
+export const DEV_GUILDS = process.env.ACCORDJS_DEV_GUILDS?.split(",").map(id => id.trim()).filter(id => id.length > 0) || undefined;
