@@ -95,7 +95,7 @@ export function ensureFramworkModule(module: any): AnyCreateReturn {
     return module as AnyCreateReturn;
 }
 
-export function start(config:Config, rawModuleEntry:RawModuleEntry[], devMod:boolean = false) {
+export function start(config:Config, rawModuleEntry:RawModuleEntry[], devMod:boolean = false, devGuilds: string[] = []) {
 
     // Create an array to hold the processed modules
     const normalizedModule:NormalizedModule[] = [];
