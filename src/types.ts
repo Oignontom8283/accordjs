@@ -67,7 +67,7 @@ type CommandWithoutHandler<T> = {
   execute: (interaction: T) => void;
 }
 
-type AnyCommand = CommandWithHandler | CommandWithoutHandler<any>;
+export type AnyCommand = CommandWithHandler | CommandWithoutHandler<any>;
 
 export function createCommand(arg: CommandWithHandler): CreateReturn<"command">;
 export function createCommand<T>(arg: CommandWithoutHandler<T>): CreateReturn<"command">;
@@ -77,13 +77,9 @@ export function createCommand(arg: any) {
 
 
 
+// Type for the main process
+// NOTE: Sorry for the variable names, but I really didn't know how to name them. If anyone has ideas, that would be great :)
+export type A = { module: any | any[],     path: string };
+export type B = { module: any,             path: string, index: number };
+export type C = { module: AnyCreateReturn, path: string, index: number };
 
-
-
-
-type forDeploy<F extends "event" | "command"> = {
-  id: string;
-  index: number;
-  type: F;
-  module: F extends "event" ? AnyEvent : AnyCommand;
-}
