@@ -97,3 +97,13 @@ export type Config = {
   token: string;
   clientId: string;
 };
+
+/**
+ * Creates and returns a configuration object.
+ *
+ * @param config - The configuration object to be returned.
+ * @returns The same configuration object that was passed in.
+ */
+export function createConfig(config:Config):Config {
+  return config;
+}
