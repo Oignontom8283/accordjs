@@ -23,8 +23,13 @@ export default async function dev() {
         return;
     }
 
-    // Load the configuration
-    const config = getConfig(configPath);
+    try {
+        // Load the configuration
+        const config = getConfig(configPath);
+    } catch (error) {
+        console.error(`Error loading configuration from ${configPath}:`, error);
+        return;
+    }
 
 
     // Get all source code files
