@@ -56,8 +56,26 @@ export function getAllFilesRecursive(dir: string, fileFiltre: RegExp = /^.*$/, f
     return results;
 }
 
-export function loadModuleFromFile(filePath: string) {
-    return require(filePath);
+/**
+ * Dynamically loads a module from the specified file path.
+ *
+ * This function supports both CommonJS (`require`) and ECMAScript Modules (`import`).
+ * It detects the module system at runtime and loads the module accordingly.
+ * 
+ * I use this method to dynamically import any file from any type of Node.js project, whether it uses CommonJS or ESM.
+ * This approach ensures compatibility and flexibility, allowing the code to load modules regardless of the project's module system or file structure.
+ *
+ * @param filePath - The path to the module file to load.
+ * @returns A promise that resolves to the loaded module.
+ */
+export async function loadModuleFromFile(filePath: string) {
+    if (typeof require !== "undefined") {
+        // CommonJS
+        return require(filePath);
+    } else {
+        // ESM
+        return (await import(filePath)).default || await import(filePath);
+    }
 }
 
 export function ensureFramworkModule(module: any): AnyCreateReturn {
