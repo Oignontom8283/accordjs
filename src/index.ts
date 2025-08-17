@@ -3,7 +3,7 @@ import path from 'path';
 import { Client } from "discord.js";
 import { A, AnyCommand, AnyCreateReturn, AnyEvent, B, C } from "./types";
 
-export function deployEvent(client: Client, event: AnyEvent) {
+export function deployEvent(client: Client, event: AnyEvent): { eventName: string, listener: (...args: any[]) => void } {
 
     // Create the listener function
     const listener = (...args: any[]) => {
@@ -95,7 +95,7 @@ export function ensureFramworkModule(module: any): AnyCreateReturn {
     return module as AnyCreateReturn;
 }
 
-export function start(a:A[], devMod:boolean = false) {
+export function start(client: Client, a:A[], devMod:boolean = false) {
 
     // Create an array to hold the processed modules
     const b:B[] = [];
@@ -122,9 +122,23 @@ export function start(a:A[], devMod:boolean = false) {
     }
 
 
+    // Type guards for module types
+    const isEvent = (item: C): item is C & { module: { type: "event" } } => item.module.type === "event";
+    const isCommand = (item: C): item is C & { module: { type: "command" } } => item.module.type === "command";
 
-    // for (const item of a) {
+    // Separate the modules into their respective types
+    const events = c.filter(isEvent).map(item => ({event: item.module.arg, path: item.path}));
+    const command = c.filter(isCommand).map(item => ({command: item.module.arg, path: item.path}));
 
-    // }
+    // Deploy the events
+    const eventsListeners: (ReturnType<typeof deployEvent> & { path: string })[] = []
+    for (const event of events) {
+        // Deploy the event and store the result
+        const result = deployEvent(client, event.event)
+
+        // Store the result along with the event path
+        eventsListeners.push({...result, path: event.path});
+    }
+
     
 }
