@@ -1,4 +1,4 @@
-import { ChatInputApplicationCommandData, ChatInputCommandInteraction, ClientEvents, Events, Interaction, Message, SlashCommandBuilder } from "discord.js"
+import { ChatInputApplicationCommandData, ChatInputCommandInteraction, Client, ClientEvents, Events, Interaction, Message, SlashCommandBuilder } from "discord.js"
 
 // #### utils
 
@@ -83,3 +83,17 @@ export type A = { module: any | any[],     path: string };
 export type B = { module: any,             path: string, index: number };
 export type C = { module: AnyCreateReturn, path: string, index: number };
 
+
+
+/**
+ * Represents the configuration options required for the application.
+ *
+ * @property client - The client instance used for communication.
+ * @property token - The authentication token for the client.
+ * @property clientId - The unique identifier for the client.
+ */
+export type Config = {
+  client: Client;
+  token: string;
+  clientId: string;
+};
