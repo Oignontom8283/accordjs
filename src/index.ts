@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { Client } from "discord.js";
-import { A, AnyCommand, AnyCreateReturn, AnyEvent, B, C } from "./types";
+import { A, AnyCommand, AnyCreateReturn, AnyEvent, B, C, Config } from "./types";
 
 export function deployEvent(client: Client, event: AnyEvent): { eventName: string, listener: (...args: any[]) => void } {
 
@@ -95,7 +95,7 @@ export function ensureFramworkModule(module: any): AnyCreateReturn {
     return module as AnyCreateReturn;
 }
 
-export function start(client: Client, a:A[], devMod:boolean = false) {
+export function start(config:Config, a:A[], devMod:boolean = false) {
 
     // Create an array to hold the processed modules
     const b:B[] = [];
@@ -134,11 +134,11 @@ export function start(client: Client, a:A[], devMod:boolean = false) {
     const eventsListeners: (ReturnType<typeof deployEvent> & { path: string })[] = []
     for (const event of events) {
         // Deploy the event and store the result
-        const result = deployEvent(client, event.event)
+        const result = deployEvent(config.client, event.event)
 
         // Store the result along with the event path
         eventsListeners.push({...result, path: event.path});
     }
 
-    
+
 }
