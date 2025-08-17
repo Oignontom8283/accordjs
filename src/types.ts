@@ -79,9 +79,9 @@ export function createCommand(arg: any) {
 
 // Type for the main process
 // NOTE: Sorry for the variable names, but I really didn't know how to name them. If anyone has ideas, that would be great :)
-export type A = { module: any | any[],     path: string };
-export type B = { module: any,             path: string, index: number };
-export type C = { module: AnyCreateReturn, path: string, index: number };
+export type RawModuleEntry =   { module: any | any[],     path: string };
+export type NormalizedModule = { module: any,             path: string, index: number };
+export type ValidatedModule =  { module: AnyCreateReturn, path: string, index: number };
 
 
 
