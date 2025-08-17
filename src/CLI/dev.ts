@@ -3,8 +3,8 @@ import fs from "fs";
 import { configDotenv } from "dotenv";
 import { ensureFramworkModule, getAllFilesRecursive, loadModuleFromFile, start } from "..";
 import { SOURCE_CODE_FILE_NAME_REGEX, SOURCE_CODE_FOLDER_NAME_REGEX } from "../constant";
-import { A } from "../types";
 import { getConfig, getConfigPath } from "../utils";
+import { RawModuleEntry } from "../types";
 
 export default async function dev() {
     // I'm not sure exactly what this is for anymore, but as far as I remember, without it, it doesn't work.
@@ -25,7 +25,7 @@ export default async function dev() {
 
     try {
         // Load the configuration
-        const config = getConfig(configPath);
+        var config = getConfig(configPath);
     } catch (error) {
         console.error(`Error loading configuration from ${configPath}:`, error);
         return;
@@ -41,7 +41,7 @@ export default async function dev() {
     // INFO: SOURCE_CODE_FILE_NAME_REGEX and SOURCE_CODE_FOLDER_NAME_REGEX are constant variable (a kind of global parameters)
 
     // Load the modules
-    const rawModules:A[] = await Promise.all(filesPaths.map(async filePath => ({ module: await loadModuleFromFile(filePath), path: filePath })));
+    const rawModules:RawModuleEntry[] = await Promise.all(filesPaths.map(async filePath => ({ module: await loadModuleFromFile(filePath), path: filePath })));
 
 
     start(
