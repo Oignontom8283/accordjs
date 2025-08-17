@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { Client } from "discord.js";
-import { AnyCreateReturn, AnyEvent } from "./types";
+import { A, AnyCommand, AnyCreateReturn, AnyEvent, B, C } from "./types";
 
 export function deployEvent(client: Client, event: AnyEvent) {
 
@@ -60,19 +60,53 @@ export function loadModuleFromFile(filePath: string) {
     return require(filePath);
 }
 
-export function ensureFramworkModule(module: any, id:string): AnyCreateReturn {
+export function ensureFramworkModule(module: any): AnyCreateReturn {
 
     if (!module || typeof module !== 'object') {
-        throw new Error(`Module at ${id} is not a valid AccordJS module.`);
+        throw new Error(`Module is not a valid AccordJS module.`);
     }
 
     if (!('type' in module) || !['event', 'command'].includes(module.type)) {
-        throw new Error(`Module at ${id} does not have a valid 'type' property.`);
+        throw new Error(`Module does not have a valid 'type' property.`);
     }
 
     if (!('arg' in module)) {
-        throw new Error(`Module at ${id} does not have an 'arg' property.`);
+        throw new Error(`Module does not have an 'arg' property.`);
     }
 
     return module as AnyCreateReturn;
+}
+
+export function start(a:A[], devMod:boolean = false) {
+
+    // Create an array to hold the processed modules
+    const b:B[] = [];
+    for (const item of a) {
+        if (Array.isArray(item.module)) {
+            item.module.forEach((mod, index) => {
+                b.push({ module: mod, path: item.path, index });
+            })
+        } else {
+            b.push({ module: item.module, path: item.path, index: 0 });
+        }
+    }
+
+    // Validate args and set types
+    const c:C[] = [];
+    for (const item of b) {
+        try {
+            const mod = ensureFramworkModule(item.module);
+            c.push({ module: mod, path: item.path, index: item.index });
+        } catch (error) {
+            // If the module is invalid, log the error and not push it to the array
+            console.error(`Error processing module in ${item.path} at [${item.index}]:`, error);
+        }
+    }
+
+
+
+    // for (const item of a) {
+
+    // }
+    
 }
