@@ -29,3 +29,9 @@ export const SOURCE_CODE_FILE_NAME_REGEX = /^(?!.*[()]).*\.(ts|js)$/;
  * This is used to restrict certain features to specific guilds during development.
  */
 export const DEV_GUILDS = process.env.ACCORDJS_DEV_GUILDS?.split(",").map(id => id.trim()).filter(id => id.length > 0) || undefined;
+
+
+// Configuration file names
+export const CONFIG_TS_FILE_NAME = process.env.ACCORDJS_CONFIG_TS_FILE_NAME || "config.ts";
+export const CONFIG_JS_FILE_NAME = process.env.ACCORDJS_CONFIG_JS_FILE_NAME || "config.js";
+export const CONFIG_MJS_FILE_NAME = process.env.ACCORDJS_CONFIG_MJS_FILE_NAME || "config.mjs";
