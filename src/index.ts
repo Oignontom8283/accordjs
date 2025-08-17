@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { Client } from "discord.js";
-import { A, AnyCommand, AnyCreateReturn, AnyEvent, B, C, Config } from "./types";
+import { AnyCreateReturn, AnyEvent, NormalizedModule, ValidatedModule, Config, RawModuleEntry } from "./types";
 
 export function deployEvent(client: Client, event: AnyEvent): { eventName: string, listener: (...args: any[]) => void } {
 
@@ -95,26 +95,26 @@ export function ensureFramworkModule(module: any): AnyCreateReturn {
     return module as AnyCreateReturn;
 }
 
-export function start(config:Config, a:A[], devMod:boolean = false) {
+export function start(config:Config, rawModuleEntry:RawModuleEntry[], devMod:boolean = false) {
 
     // Create an array to hold the processed modules
-    const b:B[] = [];
-    for (const item of a) {
+    const normalizedModule:NormalizedModule[] = [];
+    for (const item of rawModuleEntry) {
         if (Array.isArray(item.module)) {
             item.module.forEach((mod, index) => {
-                b.push({ module: mod, path: item.path, index });
+                normalizedModule.push({ module: mod, path: item.path, index });
             })
         } else {
-            b.push({ module: item.module, path: item.path, index: 0 });
+            normalizedModule.push({ module: item.module, path: item.path, index: 0 });
         }
     }
 
     // Validate args and set types
-    const c:C[] = [];
-    for (const item of b) {
+    const validatedModule:ValidatedModule[] = [];
+    for (const item of normalizedModule) {
         try {
             const mod = ensureFramworkModule(item.module);
-            c.push({ module: mod, path: item.path, index: item.index });
+            validatedModule.push({ module: mod, path: item.path, index: item.index });
         } catch (error) {
             // If the module is invalid, log the error and not push it to the array
             console.error(`Error processing module in ${item.path} at [${item.index}]:`, error);
@@ -123,12 +123,12 @@ export function start(config:Config, a:A[], devMod:boolean = false) {
 
 
     // Type guards for module types
-    const isEvent = (item: C): item is C & { module: { type: "event" } } => item.module.type === "event";
-    const isCommand = (item: C): item is C & { module: { type: "command" } } => item.module.type === "command";
+    const isEvent = (item: ValidatedModule): item is ValidatedModule & { module: { type: "event" } } => item.module.type === "event";
+    const isCommand = (item: ValidatedModule): item is ValidatedModule & { module: { type: "command" } } => item.module.type === "command";
 
     // Separate the modules into their respective types
-    const events = c.filter(isEvent).map(item => ({event: item.module.arg, path: item.path}));
-    const command = c.filter(isCommand).map(item => ({command: item.module.arg, path: item.path}));
+    const events = validatedModule.filter(isEvent).map(item => ({event: item.module.arg, path: item.path}));
+    const command = validatedModule.filter(isCommand).map(item => ({command: item.module.arg, path: item.path}));
 
     // Deploy the events
     const eventsListeners: (ReturnType<typeof deployEvent> & { path: string })[] = []
