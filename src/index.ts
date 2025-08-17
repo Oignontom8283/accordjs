@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
-import { Client } from "discord.js";
-import { AnyCreateReturn, AnyEvent, NormalizedModule, ValidatedModule, Config, RawModuleEntry } from "./types";
+import { Client, REST } from "discord.js";
+import { AnyCreateReturn, AnyEvent, NormalizedModule, ValidatedModule, Config, RawModuleEntry, AnyCommand } from "./types";
 
 export function deployEvent(client: Client, event: AnyEvent): { eventName: string, listener: (...args: any[]) => void } {
 
@@ -95,7 +95,7 @@ export function ensureFramworkModule(module: any): AnyCreateReturn {
     return module as AnyCreateReturn;
 }
 
-export function start(config:Config, rawModuleEntry:RawModuleEntry[], devMod:boolean = false, devGuilds: string[] = []) {
+export function start(config:Config, rawModuleEntry:RawModuleEntry[], devMod:boolean = false, devGuilds?: string[]) {
 
     // Create an array to hold the processed modules
     const normalizedModule:NormalizedModule[] = [];
