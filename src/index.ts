@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { Client, REST, Routes } from "discord.js";
+import { Client, Events, REST, Routes } from "discord.js";
 import { AnyCreateReturn, AnyEvent, NormalizedModule, ValidatedModule, Config, RawModuleEntry, AnyCommand } from "./types";
 
 export function deployEvent(client: Client, event: AnyEvent): { eventName: string, listener: (...args: any[]) => void } {
@@ -140,6 +140,44 @@ export async function syncCommands(config: Config, commands: CommandListeElement
     };
 
 };
+
+export function bindCommandHandlers(client:Client, commandsElements:CommandListeElement[]) {
+
+    // Listen for interaction events
+    client.on(Events.InteractionCreate, async (interaction) => {
+
+        // Check if the interaction is a command
+        if (!interaction.isCommand()) return;
+
+        // Find the command element
+        try {
+            const commandName = interaction.commandName;
+
+            // Find the command element
+            const commandElement = commandsElements.find(cmd => cmd.command.data.name === commandName);
+            
+            if (!commandElement) {
+                // if command element not found, log a warning
+                console.warn(`Command element not found for command: ${commandName}`);
+                return;
+            }
+
+            // Execute the command
+            commandElement.command.execute(interaction as any); // TODO: Find and fix the type compatibility issue
+        } catch (error) {
+
+            // Log the error
+            console.error(`Error executing command ${interaction.commandName} user:${interaction.user.id} guild:${interaction.guild ? interaction.guild.id : 'None'}:`, error);
+
+            // Send an error response
+            if (interaction.replied || interaction.deferred) {
+                await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
+            } else {
+                await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+            }
+        }
+    });
+}
 
 
 type CommandListeElement = { command: AnyCommand, path: string };
