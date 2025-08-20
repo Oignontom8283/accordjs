@@ -95,7 +95,7 @@ export function ensureFramworkModule(module: any): AnyCreateReturn {
     return module as AnyCreateReturn;
 }
 
-export async function syncCommands(client: Client, config: Config, commands: CommandListeElement[], guilds?: string[]) {
+export async function syncCommands(config: Config, commands: CommandListeElement[], guilds?: string[]) {
 
     // Map the command data for discord API declaration
     const commandDatas = commands.map(item => item.command.data.toJSON());
@@ -137,9 +137,9 @@ export async function syncCommands(client: Client, config: Config, commands: Com
             Routes.applicationCommands(config.clientId),
             { body: commandDatas },
         );
-    }
-    
-}
+    };
+
+};
 
 
 type CommandListeElement = { command: AnyCommand, path: string };
