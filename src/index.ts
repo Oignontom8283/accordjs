@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { Client, REST } from "discord.js";
+import { Client, REST, Routes } from "discord.js";
 import { AnyCreateReturn, AnyEvent, NormalizedModule, ValidatedModule, Config, RawModuleEntry, AnyCommand } from "./types";
 
 export function deployEvent(client: Client, event: AnyEvent): { eventName: string, listener: (...args: any[]) => void } {
@@ -95,6 +95,56 @@ export function ensureFramworkModule(module: any): AnyCreateReturn {
     return module as AnyCreateReturn;
 }
 
+export async function syncCommands(client: Client, config: Config, commands: CommandListeElement[], guilds?: string[]) {
+
+    // Map the command data for discord API declaration
+    const commandDatas = commands.map(item => item.command.data.toJSON());
+
+    // Create a REST client for interacting with the Discord API
+    const rest = new REST().setToken(config.token);
+
+    // Check if guilds are specified, if so, deploy commands to each guild
+    if (guilds) {
+
+        // Iterate over each specified guild
+        for (const guildId of guilds) {
+
+            // Clear all commands of the guild
+            await rest.put(
+                Routes.applicationGuildCommands(config.clientId, guildId),
+                { body: {} }
+            )
+
+            // The put method is used to fully refresh all commands in the guild with the current set
+            const data = await rest.put(
+                Routes.applicationGuildCommands(config.clientId, guildId),
+                { body: commandDatas },
+            )
+        }
+
+    }
+    // If no guilds are specified, deploy globally
+    else {
+
+        // Clear all commands
+        await rest.put(
+            Routes.applicationCommands(config.clientId),
+            { body: {} }
+        )
+
+        // The put method is used to fully refresh all commands in the guild with the current set
+        const data = await rest.put(
+            Routes.applicationCommands(config.clientId),
+            { body: commandDatas },
+        );
+    }
+    
+}
+
+
+type CommandListeElement = { command: AnyCommand, path: string };
+type EventListeElement = { event: AnyEvent, path: string };
+
 export function start(config:Config, rawModuleEntry:RawModuleEntry[], devMod:boolean = false, devGuilds?: string[]) {
 
     // Create an array to hold the processed modules
@@ -127,8 +177,8 @@ export function start(config:Config, rawModuleEntry:RawModuleEntry[], devMod:boo
     const isCommand = (item: ValidatedModule): item is ValidatedModule & { module: { type: "command" } } => item.module.type === "command";
 
     // Separate the modules into their respective types
-    const events = validatedModule.filter(isEvent).map(item => ({event: item.module.arg, path: item.path}));
-    const command = validatedModule.filter(isCommand).map(item => ({command: item.module.arg, path: item.path}));
+    const events:EventListeElement[] = validatedModule.filter(isEvent).map(item => ({event: item.module.arg, path: item.path}));
+    const commands:CommandListeElement[] = validatedModule.filter(isCommand).map(item => ({command: item.module.arg, path: item.path}));
 
     // Deploy the events
     const eventsListeners: (ReturnType<typeof deployEvent> & { path: string })[] = []
