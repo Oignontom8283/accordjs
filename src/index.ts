@@ -180,8 +180,8 @@ export function bindCommandHandlers(client:Client, commandsElements:CommandListe
 }
 
 
-type CommandListeElement = { command: AnyCommand, path: string };
-type EventListeElement = { event: AnyEvent, path: string };
+export type CommandListeElement = { command: AnyCommand, path: string };
+export type EventListeElement = { event: AnyEvent, path: string };
 
 export function start(config:Config, rawModuleEntry:RawModuleEntry[], devMod:boolean = false, devGuilds?: string[]) {
 
