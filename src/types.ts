@@ -76,14 +76,22 @@ export function createCommand(arg: any) {
 }
 
 
+type ModuleItem<T> = { module: T, path: string, index:number }
 
 // Type for the main process
 // NOTE: Sorry for the variable names, but I really didn't know how to name them. If anyone has ideas, that would be great :)
-export type RawModuleEntry =   { module: any | any[],     path: string };
-export type NormalizedModule = { module: any,             path: string, index: number };
-export type ValidatedModule =  { module: AnyCreateReturn, path: string, index: number };
+export type RawModuleEntry =   Omit<ModuleItem<any | any[]>, 'index'>
+export type NormalizedModule = ModuleItem<any>;
+export type ValidatedModule =  ModuleItem<AnyCreateReturn>;
 
+export type RegistryAPI<Obj> = {
+  get: (path: string) => Promise<Obj[] | null>;
+  add: (path: string, obj: Obj) => Promise<void>;
+  delete: (path: string) => Promise<void>;
+}
 
+export type CommandListeElement = { command: AnyCommand, path: string };
+export type EventListeElement = { event: AnyEvent, path: string };
 
 /**
  * Represents the configuration options required for the application.
