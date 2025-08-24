@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { Client, Events, REST, Routes } from "discord.js";
-import { AnyCreateReturn, AnyEvent, NormalizedModule, ValidatedModule, Config, RawModuleEntry, AnyCommand } from "./types";
+import { AnyCreateReturn, AnyEvent, NormalizedModule, ValidatedModule, Config, RawModuleEntry, AnyCommand, EventListeElement, CommandListeElement } from "./types";
 
 export function deployEvent(client: Client, event: AnyEvent): { eventName: string, listener: (...args: any[]) => void } {
 
@@ -167,7 +167,7 @@ export function bindCommandHandlers(client:Client, commandsElements:CommandListe
         } catch (error) {
 
             // Log the error
-            console.error(`Error executing command ${interaction.commandName} user:${interaction.user.id} guild:${interaction.guild ? interaction.guild.id : 'None'}:`, error);
+            console.error(`Error executing command ${interaction.commandName} user:${interaction.user.id} guild:${interaction.guild ? interaction.guild.id : 'None'} :\n`, error);
 
             // Send an error response
             if (interaction.replied || interaction.deferred) {
@@ -178,10 +178,6 @@ export function bindCommandHandlers(client:Client, commandsElements:CommandListe
         }
     });
 }
-
-
-export type CommandListeElement = { command: AnyCommand, path: string };
-export type EventListeElement = { event: AnyEvent, path: string };
 
 export function start(config:Config, rawModuleEntry:RawModuleEntry[], devMod:boolean = false, devGuilds?: string[]) {
 
