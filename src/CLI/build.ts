@@ -1,8 +1,6 @@
 import path from "path";
 import fs from 'fs';
-import { webpack } from "webpack";
 import indexDefault from "../default/index.default";
-import { compile } from "../compiler";
 
 export default async function build() {
     console.log("🚀 Building project...");
@@ -33,12 +31,12 @@ export default async function build() {
     // fs.mkdirSync(outputFolder, { recursive: true });
 
 
-    try {
-        await compile(entry, outputFolder, outputFileName);
-    } catch (err) {
-        console.error("❌ Compilation failed:", err);
-        return;
-    }
+    // try {
+    //     await compile(entry, outputFolder, outputFileName);
+    // } catch (err) {
+    //     console.error("❌ Compilation failed:", err);
+    //     return;
+    // }
 
     // delete entry file after compilation
     //fs.unlinkSync(entry);
