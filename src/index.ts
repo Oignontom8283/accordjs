@@ -224,6 +224,6 @@ export function start(config:Config, rawModuleEntry:RawModuleEntry[], devMod:boo
         eventsListeners.push({...result, path: event.path});
     }
 
-    events.map(ev => ev.path)
+    
 
 }
