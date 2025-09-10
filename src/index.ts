@@ -211,8 +211,8 @@ export function start(config:Config, rawModuleEntry:RawModuleEntry[], devMod:boo
     const isCommand = (item: ValidatedModule): item is ValidatedModule & { module: { type: "command" } } => item.module.type === "command";
 
     // Separate the modules into their respective types
-    const events:EventListeElement[] = validatedModule.filter(isEvent).map(item => ({event: item.module.arg, path: item.path}));
-    const commands:CommandListeElement[] = validatedModule.filter(isCommand).map(item => ({command: item.module.arg, path: item.path}));
+    const events:EventListeElement[] = validatedModule.filter(isEvent).map(item => ({event: item.module.arg, path: item.path, index: item.index}));
+    const commands:CommandListeElement[] = validatedModule.filter(isCommand).map(item => ({command: item.module.arg, path: item.path, index: item.index}));
 
     // Deploy the events
     const eventsListeners: (ReturnType<typeof deployEvent> & { path: string })[] = []
@@ -224,5 +224,6 @@ export function start(config:Config, rawModuleEntry:RawModuleEntry[], devMod:boo
         eventsListeners.push({...result, path: event.path});
     }
 
+    events.map(ev => ev.path)
 
 }
