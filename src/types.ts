@@ -1,4 +1,5 @@
 import { ChatInputApplicationCommandData, ChatInputCommandInteraction, Client, ClientEvents, Events, Interaction, Message, SlashCommandBuilder } from "discord.js"
+import { deployEvent } from ".";
 
 // #### utils
 
@@ -85,13 +86,18 @@ export type NormalizedModule = ModuleItem<any>;
 export type ValidatedModule =  ModuleItem<AnyCreateReturn>;
 
 export type RegistryAPI<Obj> = {
-  get: (path: string) => Promise<Obj[] | null>;
-  add: (path: string, obj: Obj) => Promise<void>;
-  delete: (path: string) => Promise<void>;
+  get: (path: string) => Obj[] | null;
+  add: (path: string, obj: Obj) => void;
+  delete: (path: string) => void;
+  getAll: () => Obj[];
 }
 
 export type CommandListeElement = { command: AnyCommand, path: string, index:number };
 export type EventListeElement = { event: AnyEvent, path: string, index:number };
+
+export type EventListener = (ReturnType<typeof deployEvent> & { path: string, index: number })
+export type CommandRegistry = RegistryAPI<CommandListeElement>
+
 
 /**
  * Represents the configuration options required for the application.

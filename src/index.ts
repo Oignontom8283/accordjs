@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { Client, Events, REST, Routes } from "discord.js";
-import { AnyCreateReturn, AnyEvent, NormalizedModule, ValidatedModule, Config, RawModuleEntry, AnyCommand, EventListeElement, CommandListeElement } from "./types";
+import { AnyCreateReturn, AnyEvent, NormalizedModule, ValidatedModule, Config, RawModuleEntry, AnyCommand, EventListeElement, CommandListeElement, RegistryAPI, CommandRegistry, EventListener } from "./types";
 
 export function deployEvent(client: Client, event: AnyEvent): { eventName: string, listener: (...args: any[]) => void } {
 
@@ -95,7 +95,10 @@ export function ensureFramworkModule(module: any): AnyCreateReturn {
     return module as AnyCreateReturn;
 }
 
-export async function syncCommands(config: Config, commands: CommandListeElement[], guilds?: string[]) {
+export async function syncCommands(config: Config, registry: CommandRegistry, guilds?: string[]) {
+
+    // Get all command elements from the registry API
+    const commands = registry.getAll();
 
     // Map the command data for discord API declaration
     const commandDatas = commands.map(item => item.command.data.toJSON());
@@ -141,7 +144,10 @@ export async function syncCommands(config: Config, commands: CommandListeElement
 
 };
 
-export function bindCommandHandlers(client:Client, commandsElements:CommandListeElement[]) {
+export function bindCommandHandlers(client:Client, registry:CommandRegistry) {
+
+    // Get all command elements from the registry API
+    const commandsElements = registry.getAll();
 
     // Listen for interaction events
     client.on(Events.InteractionCreate, async (interaction) => {
@@ -215,7 +221,7 @@ export function start(config:Config, rawModuleEntry:RawModuleEntry[], devMod:boo
     const commands:CommandListeElement[] = validatedModule.filter(isCommand).map(item => ({command: item.module.arg, path: item.path, index: item.index}));
 
     // Deploy the events
-    const eventsListeners: (ReturnType<typeof deployEvent> & { path: string, index: number })[] = []
+    const eventsListeners: EventListener[] = []
     for (const event of events) {
         // Deploy the event and store the result
         const result = deployEvent(config.client, event.event)
@@ -224,6 +230,7 @@ export function start(config:Config, rawModuleEntry:RawModuleEntry[], devMod:boo
         eventsListeners.push({...result, path: event.path, index: event.index});
     }
 
-    
+    // Deploy the commands
+
 
 }
