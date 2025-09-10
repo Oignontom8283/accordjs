@@ -90,8 +90,8 @@ export type RegistryAPI<Obj> = {
   delete: (path: string) => Promise<void>;
 }
 
-export type CommandListeElement = { command: AnyCommand, path: string };
-export type EventListeElement = { event: AnyEvent, path: string };
+export type CommandListeElement = { command: AnyCommand, path: string, index:number };
+export type EventListeElement = { event: AnyEvent, path: string, index:number };
 
 /**
  * Represents the configuration options required for the application.

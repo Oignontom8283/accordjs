@@ -215,13 +215,13 @@ export function start(config:Config, rawModuleEntry:RawModuleEntry[], devMod:boo
     const commands:CommandListeElement[] = validatedModule.filter(isCommand).map(item => ({command: item.module.arg, path: item.path, index: item.index}));
 
     // Deploy the events
-    const eventsListeners: (ReturnType<typeof deployEvent> & { path: string })[] = []
+    const eventsListeners: (ReturnType<typeof deployEvent> & { path: string, index: number })[] = []
     for (const event of events) {
         // Deploy the event and store the result
         const result = deployEvent(config.client, event.event)
 
         // Store the result along with the event path
-        eventsListeners.push({...result, path: event.path});
+        eventsListeners.push({...result, path: event.path, index: event.index});
     }
 
     
