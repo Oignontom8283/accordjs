@@ -251,6 +251,10 @@ export async function start(config:Config, rawModuleEntry:RawModuleEntry[], guil
         }
     }
     
-    await syncCommands(config, commandRegistryAPI, devMod ? undefined : guilds)
+    // Sync commands with Discord API
+    await syncCommands(config, commandRegistryAPI, devMod ? undefined : guilds);
+
+    // bind command handlers
+    bindCommandHandlers(config.client, commandRegistryAPI);
 
 }
