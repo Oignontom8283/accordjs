@@ -220,6 +220,7 @@ export async function start(config:Config, rawModuleEntry:RawModuleEntry[], guil
     const events:EventListeElement[] = validatedModule.filter(isEvent).map(item => ({event: item.module.arg, path: item.path, index: item.index}));
     const commands:CommandListeElement[] = validatedModule.filter(isCommand).map(item => ({command: item.module.arg, path: item.path, index: item.index}));
 
+    
     // Deploy the events
     const eventsListeners: EventListener[] = []
     for (const event of events) {
@@ -257,5 +258,7 @@ export async function start(config:Config, rawModuleEntry:RawModuleEntry[], guil
     // bind command handlers
     bindCommandHandlers(config.client, commandRegistryAPI);
 
-
+    if (devMod) {
+        // Logic in dev mode
+    }
 }
