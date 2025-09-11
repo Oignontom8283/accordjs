@@ -233,7 +233,7 @@ export async function start(config:Config, rawModuleEntry:RawModuleEntry[], guil
 
 
     // Create the command registry array
-    let commandsRegistry:CommandListeElement[] = []
+    let commandsRegistry:CommandListeElement[] = [...commands];
 
     // Create the command registry API
     const commandRegistryAPI:CommandRegistryAPI = {
@@ -256,5 +256,6 @@ export async function start(config:Config, rawModuleEntry:RawModuleEntry[], guil
 
     // bind command handlers
     bindCommandHandlers(config.client, commandRegistryAPI);
+
 
 }
