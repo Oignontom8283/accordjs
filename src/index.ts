@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { Client, Events, REST, Routes } from "discord.js";
-import { AnyCreateReturn, AnyEvent, NormalizedModule, ValidatedModule, Config, RawModuleEntry, AnyCommand, EventListeElement, CommandListeElement, RegistryAPI, CommandRegistry, EventListener } from "./types";
+import { AnyCreateReturn, AnyEvent, NormalizedModule, ValidatedModule, Config, RawModuleEntry, AnyCommand, EventListeElement, CommandListeElement, RegistryAPI, CommandRegistry as CommandRegistryAPI, EventListener } from "./types";
 
 export function deployEvent(client: Client, event: AnyEvent): { eventName: string, listener: (...args: any[]) => void } {
 
@@ -95,7 +95,7 @@ export function ensureFramworkModule(module: any): AnyCreateReturn {
     return module as AnyCreateReturn;
 }
 
-export async function syncCommands(config: Config, registry: CommandRegistry, guilds?: string[]) {
+export async function syncCommands(config: Config, registry: CommandRegistryAPI, guilds?: string[]) {
 
     // Get all command elements from the registry API
     const commands = registry.getAll();
@@ -144,7 +144,7 @@ export async function syncCommands(config: Config, registry: CommandRegistry, gu
 
 };
 
-export function bindCommandHandlers(client:Client, registry:CommandRegistry) {
+export function bindCommandHandlers(client:Client, registry:CommandRegistryAPI) {
 
     // Get all command elements from the registry API
     const commandsElements = registry.getAll();
@@ -230,7 +230,25 @@ export function start(config:Config, rawModuleEntry:RawModuleEntry[], devMod:boo
         eventsListeners.push({...result, path: event.path, index: event.index});
     }
 
-    // Deploy the commands
 
+
+    // Create the command registry array
+    let commandsRegistry:CommandListeElement[] = []
+
+    // Create the command registry API
+    const commandRegistryAPI:CommandRegistryAPI = {
+        add: (obj) => {
+            commandsRegistry.push(obj);
+        },
+        delete: (filter) => {
+            commandsRegistry = commandsRegistry.filter(e => !filter(e));
+        },
+        get: (filter) => {
+            return commandsRegistry.filter(e => filter(e))
+        },
+        getAll: () => {
+            return commandsRegistry;
+        }
+    }
 
 }
