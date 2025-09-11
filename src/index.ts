@@ -185,7 +185,7 @@ export function bindCommandHandlers(client:Client, registry:CommandRegistryAPI) 
     });
 }
 
-export function start(config:Config, rawModuleEntry:RawModuleEntry[], devMod:boolean = false, devGuilds?: string[]) {
+export async function start(config:Config, rawModuleEntry:RawModuleEntry[], guilds:(typeof devMod extends true ? string[] : string[] | undefined) = undefined, devMod:boolean = false) {
 
     // Create an array to hold the processed modules
     const normalizedModule:NormalizedModule[] = [];
@@ -250,5 +250,7 @@ export function start(config:Config, rawModuleEntry:RawModuleEntry[], devMod:boo
             return commandsRegistry;
         }
     }
+    
+    await syncCommands(config, commandRegistryAPI, devMod ? undefined : guilds)
 
 }
