@@ -85,10 +85,12 @@ export type RawModuleEntry =   Omit<ModuleItem<any | any[]>, 'index'>
 export type NormalizedModule = ModuleItem<any>;
 export type ValidatedModule =  ModuleItem<AnyCreateReturn>;
 
+export type RegistryAPIFilter<Obj> = (obj: Obj) => boolean;
+
 export type RegistryAPI<Obj> = {
-  get: (path: string) => Obj[] | null;
-  add: (path: string, obj: Obj) => void;
-  delete: (path: string) => void;
+  get: (filter: RegistryAPIFilter<Obj>) => Obj[] | null;
+  add: (obj: Obj) => void;
+  delete: (filter: RegistryAPIFilter<Obj>) => void;
   getAll: () => Obj[];
 }
 
