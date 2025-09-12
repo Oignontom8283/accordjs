@@ -30,7 +30,8 @@
   "homepage": "https://github.com/Oignontom8283/accordjs#readme",
   "dependencies": {
     "coloriz": "^1.2.0",
-    "dotenv": "^16.5.0"
+    "dotenv": "^16.5.0",
+    "vite": "^7.1.5"
   },
   "devDependencies": {
     "@types/node": "^24.0.3",
