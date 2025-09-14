@@ -1,9 +1,9 @@
 import path from "path";
 import fs from "fs";
 import { configDotenv } from "dotenv";
-import { ensureFramworkModule, getAllFilesRecursive, loadModuleFromFile, start } from "..";
+import { ensureFramworkModule, loadModuleFromFile, start } from "..";
 import { SOURCE_CODE_FILE_NAME_REGEX, SOURCE_CODE_FOLDER_NAME_REGEX } from "../constant";
-import { getConfig, getConfigPath } from "../utils";
+import { getConfig, getConfigPath, getAllFilesRecursive } from "../utils";
 import { RawModuleEntry } from "../types";
 
 export default async function dev() {

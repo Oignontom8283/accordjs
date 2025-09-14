@@ -1,4 +1,4 @@
-import { getAllFilesRecursive } from ".";
+import { getAllFilesRecursive } from "./utils";
 
 function writeLine() {
     console.log("_".repeat(process.stdout.columns));
