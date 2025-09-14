@@ -111,3 +111,17 @@ export function ensureConfig(module: any): Config {
 
     return module as Config;
 }
+
+/**
+ * Sanitizes a file path for safe usage in JS/TS import statements.
+ * Converts Windows backslashes to forward slashes and removes redundant segments.
+ *
+ * @param filePath - The file path to sanitize.
+ * @returns The sanitized path suitable for import statements.
+ */
+export function sanitizeImportPath(filePath: string): string {
+    let sanitized = path.normalize(filePath).replace(/\\/g, '/');
+    // Remove leading './' or '/' if present
+    sanitized = sanitized.replace(/^(\.\/|\/)/, '');
+    return sanitized;
+}
