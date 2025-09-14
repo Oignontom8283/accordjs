@@ -1,7 +1,8 @@
+import 'coloriz';
 import { getAllFilesRecursive, sanitizeImportPath } from "./utils";
 
 function writeLine() {
-    console.log("_".repeat(process.stdout.columns));
+    console.log("─".repeat(process.stdout.columns).yellow);
 }
 
 const paths = getAllFilesRecursive(
@@ -17,3 +18,8 @@ writeLine();
 console.log(paths.map(p => sanitizeImportPath(p)));
 
 writeLine();
+
+console.log(`
+    import paths from "./paths";
+    console.log(paths);
+`)
