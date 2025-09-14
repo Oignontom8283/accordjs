@@ -47,6 +47,7 @@ export default async function dev() {
     start(
         config, // Pass the configuration
         rawModules, // Pass the raw modules
-        true // Enable development mode (watcher, hot-reloading, etc.)
+        undefined,
+        true // Development mode enabled
     );
 }
