@@ -40,15 +40,15 @@ export function getAllFilesRecursive(dir: string, fileFiltre: RegExp = /^.*$/, f
  * 2. JavaScript config file (`CONFIG_JS_FILE_NAME`)
  * 3. ECMAScript module config file (`CONFIG_MJS_FILE_NAME`)
  *
- * @param workDir - The working directory to search for configuration files.
+ * @param dir - The working directory to search for configuration files.
  * @returns The absolute path to the first found config file, or `null` if none exist.
  */
-export function getConfigPath(workDir: string): string | null {
+export function getConfigPath(dir: string): string | null {
 
     // Get the absolute paths to the config files
-    const ts = path.join(workDir, CONFIG_TS_FILE_NAME);
-    const js = path.join(workDir, CONFIG_JS_FILE_NAME);
-    const mjs = path.join(workDir, CONFIG_MJS_FILE_NAME);
+    const ts = path.join(dir, CONFIG_TS_FILE_NAME);
+    const js = path.join(dir, CONFIG_JS_FILE_NAME);
+    const mjs = path.join(dir, CONFIG_MJS_FILE_NAME);
 
     return (
         fs.existsSync(ts) ? ts // if TypeScript config exists
@@ -125,3 +125,4 @@ export function sanitizeImportPath(filePath: string): string {
     sanitized = sanitized.replace(/^(\.\/|\/)/, '');
     return sanitized;
 }
+
