@@ -3,8 +3,8 @@ import fs from "fs";
 import readline from "readline";
 const me:{version:string, description:string, peerDependencies:{"discord.js":string, "ts-loader":string}} = JSON.parse(fs.readFileSync(path.join(__dirname, '../../package.json'), 'utf-8'));
 import 'coloriz';
-import { ACCORDJS_DEVLOPMENT_MODE, CONFIG_FILE_NAME_TS } from "../constant";
 import { stderr } from "process";
+import { ACCORDJS_DEVELOPMENT_MODE } from "../constant";
 import envDefault from "../default/env.default";
 import tsconfigDefault from "../default/tsconfig.default";
 import packageJsonDefault from "../default/packageJson.default";
@@ -76,7 +76,7 @@ export default async function init(args:string[]) {
     const packageJsonPath = path.join(workspacePath, 'package.json')
     if (!fs.existsSync(packageJsonPath)) {
         fs.writeFileSync(packageJsonPath, packageJsonDefault(dirName, {
-            "accordjs": ACCORDJS_DEVLOPMENT_MODE ? "file:" + path.join(__dirname, '../../') : me.version,
+            "accordjs": ACCORDJS_DEVELOPMENT_MODE ? "file:" + path.join(__dirname, '../../') : me.version,
             'discord.js': me.peerDependencies['discord.js'],
             "ts-loader": me.peerDependencies['ts-loader'],
         }), 'utf-8');
